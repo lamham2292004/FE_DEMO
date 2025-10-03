@@ -1,3 +1,5 @@
+"use client"
+
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CourseCard } from "@/components/course-card"
@@ -19,8 +21,23 @@ import {
   Award,
   BookOpen,
 } from "lucide-react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { type FormEvent, useState } from "react"
 
 export default function HomePage() {
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      router.push("/courses")
+    }
+  }
+
   const featuredCourses = [
     {
       id: "1",
@@ -76,12 +93,12 @@ export default function HomePage() {
   ]
 
   const categories = [
-    { name: "Lập trình", icon: Code, count: 1234 },
-    { name: "Thiết kế", icon: Palette, count: 856 },
-    { name: "Kinh doanh", icon: TrendingUp, count: 642 },
-    { name: "Marketing", icon: Megaphone, count: 523 },
-    { name: "Nhiếp ảnh", icon: Camera, count: 412 },
-    { name: "Âm nhạc", icon: Music, count: 389 },
+    { name: "Lập trình", icon: Code, count: 1234, slug: "lap-trinh" },
+    { name: "Thiết kế", icon: Palette, count: 856, slug: "thiet-ke" },
+    { name: "Kinh doanh", icon: TrendingUp, count: 642, slug: "kinh-doanh" },
+    { name: "Marketing", icon: Megaphone, count: 523, slug: "marketing" },
+    { name: "Nhiếp ảnh", icon: Camera, count: 412, slug: "nhiep-anh" },
+    { name: "Âm nhạc", icon: Music, count: 389, slug: "am-nhac" },
   ]
 
   const stats = [
@@ -134,16 +151,22 @@ export default function HomePage() {
                 học tập của bạn ngay hôm nay.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+              <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
                 <div className="relative flex-1 max-w-md">
                   <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input type="search" placeholder="Bạn muốn học gì hôm nay?" className="pl-12 h-12 text-base" />
+                  <Input
+                    type="search"
+                    placeholder="Bạn muốn học gì hôm nay?"
+                    className="pl-12 h-12 text-base"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
-                <Button size="lg" className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground">
+                <Button type="submit" size="lg" className="h-12 bg-accent hover:bg-accent/90 text-accent-foreground">
                   Khám phá ngay
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              </div>
+              </form>
             </div>
           </div>
         </section>
@@ -175,10 +198,12 @@ export default function HomePage() {
                 <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Khóa học nổi bật</h2>
                 <p className="text-muted-foreground">Các khóa học được yêu thích nhất từ cộng đồng học viên</p>
               </div>
-              <Button variant="outline" className="hidden md:inline-flex bg-transparent">
-                Xem tất cả
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <Link href="/courses" className="hidden md:inline-flex">
+                <Button variant="outline" className="bg-transparent">
+                  Xem tất cả
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -188,10 +213,12 @@ export default function HomePage() {
             </div>
 
             <div className="mt-8 text-center md:hidden">
-              <Button variant="outline" className="w-full bg-transparent">
-                Xem tất cả khóa học
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+              <Link href="/courses" className="block">
+                <Button variant="outline" className="w-full bg-transparent">
+                  Xem tất cả khóa học
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
@@ -208,19 +235,21 @@ export default function HomePage() {
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {categories.map((category, index) => (
-                <Card key={index} className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary">
-                  <CardContent className="p-6 text-center space-y-3">
-                    <div className="flex justify-center">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        <category.icon className="h-7 w-7" />
+                <Link key={index} href={`/courses?category=${category.slug}`}>
+                  <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary h-full">
+                    <CardContent className="p-6 text-center space-y-3">
+                      <div className="flex justify-center">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <category.icon className="h-7 w-7" />
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-1">{category.name}</h3>
-                      <p className="text-sm text-muted-foreground">{category.count} khóa học</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-1">{category.name}</h3>
+                        <p className="text-sm text-muted-foreground">{category.count} khóa học</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
@@ -270,13 +299,15 @@ export default function HomePage() {
                   Đăng ký miễn phí
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                >
-                  Khám phá khóa học
-                </Button>
+                <Link href="/courses">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-12 w-full bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                  >
+                    Khám phá khóa học
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

@@ -1,9 +1,25 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Search, ShoppingCart, Menu, BookOpen } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { type FormEvent, useState } from "react"
 
 export function Header() {
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      router.push("/courses")
+    }
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -14,12 +30,18 @@ export function Header() {
         </Link>
 
         {/* Search Bar - Hidden on mobile */}
-        <div className="hidden flex-1 max-w-md mx-8 md:flex">
+        <form onSubmit={handleSearch} className="hidden flex-1 max-w-md mx-8 md:flex">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input type="search" placeholder="Tìm kiếm khóa học..." className="w-full pl-10" />
+            <Input
+              type="search"
+              placeholder="Tìm kiếm khóa học..."
+              className="w-full pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </div>
+        </form>
 
         {/* Navigation */}
         <nav className="flex items-center gap-4">
@@ -60,10 +82,18 @@ export function Header() {
 
       {/* Mobile Search */}
       <div className="border-t px-4 py-3 md:hidden">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input type="search" placeholder="Tìm kiếm khóa học..." className="w-full pl-10" />
-        </div>
+        <form onSubmit={handleSearch}>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Tìm kiếm khóa học..."
+              className="w-full pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </form>
       </div>
     </header>
   )
